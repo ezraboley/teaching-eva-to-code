@@ -9,7 +9,7 @@ public class TicTacToe {
         this.board = new char[3][3];
         for (int i = 0; i < board.length; i++) {
             for (int j = 0; j < board[i].length; j++) {
-                board[i][j] = P1;
+                board[i][j] = EMPTY;
             }
         }
     }
@@ -24,7 +24,7 @@ public class TicTacToe {
      *  3. Reset the game
     */
     public void play() {
-        checkWin();
+        checkWin(this.board);
         return;
     }
 
@@ -40,7 +40,7 @@ public class TicTacToe {
         return (i == 0 || i == 2) && (j == 0 || j == 2);
     }
 
-    public void checkWin() {
+    public char checkWin(char [][] board) {
         int[] tallyTop = new int[4];
         int[] tallySide = new int[4];
         for (int row = 0; row < board.length; row++) {
@@ -60,20 +60,59 @@ public class TicTacToe {
         int oWon = 3 * P2;
         for (int i = 0; i < tallyTop.length; i++ ) {
             if(xWon == tallyTop[i] || tallySide[i] == xWon) {
-                System.out.println("X Won, You suck O");
-                return;
+/*                System.out.println("X Won, You suck O");*/
+                return P1;
             } else if (oWon == tallyTop[i] || oWon == tallySide[i]) {
-                System.out.println("O Won, You suck X");
-                return;
+/*                System.out.println("O Won, You suck X");*/
+                return P2;
             }
         }
-        System.out.println("You both suck");
+        return EMPTY;
     }
 
 /* END */
+    public void ai(char [][] board) {
+        int maxScore = -100;
+        int bestRow = -1;
+        int bestCol = -1;
+        for (int i = 0; i < board.length; i++) {
+            for (int j = 0; j < board[i].length; j++) {
+                if (board[i][j] == EMPTY) {
+                    board[i][j] = P1;
+                    int tmpScore = aiPlay(board, P2);
+                    if (tmpScore > maxScore) {
+                        maxScore = tmpScore;
+                        bestRow = i;
+                        bestCol = j;
+                    }
+                }
+            }
+        }
+        this.board[bestRow][bestCol] = P1;
+    }
 
-    public void aiPlay() {
-
+    public int aiPlay(char [][] board, char player) {
+        char winner = checkWin(board);
+        if (winner == P1) {
+            return -1;
+        } else if (winner == P2) {
+            return 1;
+        }
+        int score = 0;
+        for (int i = 0; i < board.length; i++) {
+            for (int j = 0; j < board[i].length; j++) {
+                if (board[i][j] == EMPTY) {
+                    if (player == P1) {
+                        board[i][j] = P1;
+                        score += aiPlay(board, P2);
+                    } else {
+                        board[i][j] = P2;
+                        score += aiPlay(board, P1);
+                    }
+                }
+            }
+        }
+        return score;
     }
 
     public void draw() {
